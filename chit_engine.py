@@ -1,4 +1,3 @@
-
 import csv
 from pathlib import Path
 
@@ -38,9 +37,7 @@ class ChitFundEngine:
     def load_groups(self):
         file_path = BASE_DIR / "groups.csv"
 
-        with file_path.open(
-            "r", newline="", encoding="utf-8"
-        ) as csv_file:
+        with file_path.open("r", newline="", encoding="utf-8") as csv_file:
             reader = csv.DictReader(csv_file)
 
             for row in reader:
@@ -50,9 +47,7 @@ class ChitFundEngine:
                     raise ValueError("Group ID cannot be empty.")
 
                 if group_id in self.groups:
-                    raise ValueError(
-                        f"Duplicate group ID: {group_id}"
-                    )
+                    raise ValueError(f"Duplicate group ID: {group_id}")
 
                 chit_value = float(row["chit_value"])
                 duration = int(row["duration"])
@@ -73,9 +68,7 @@ class ChitFundEngine:
     def load_members(self):
         file_path = BASE_DIR / "members.csv"
 
-        with file_path.open(
-            "r", newline="", encoding="utf-8"
-        ) as csv_file:
+        with file_path.open("r", newline="", encoding="utf-8") as csv_file:
             reader = csv.DictReader(csv_file)
 
             for row in reader:
@@ -102,6 +95,22 @@ class ChitFundEngine:
 
                 self.members[member_id] = member
                 self.groups[group_id].members.append(member)
+
+    def record_payment(self, member_id, amount):
+        if member_id not in self.members:
+            print("Member not found.")
+            return
+
+        if amount <= 0:
+            print("Payment must be greater than zero.")
+            return
+
+        member = self.members[member_id]
+        member.total_paid += amount
+
+        print(f"\nPayment recorded for {member.name}")
+        print(f"Amount paid: Rs. {amount:.2f}")
+        print(f"Total paid: Rs. {member.total_paid:.2f}")
 
     def show_report(self):
         print("\nCHIT FUND MANAGEMENT SYSTEM")
@@ -131,6 +140,11 @@ def main():
         engine = ChitFundEngine()
         engine.load_groups()
         engine.load_members()
+
+        # Test payment recording for Member1
+        engine.record_payment("M001", 5000)
+
+        # Display the group and member report
         engine.show_report()
 
     except FileNotFoundError as error:
